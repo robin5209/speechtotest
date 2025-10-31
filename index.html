@@ -1,41 +1,132 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Speech to Text</title>
-</head>
-<body style="text-align:center; font-family:sans-serif; padding:20px;">
-  <h3>🎙️ Speak to Search</h3>
-  <input id="speechInput" type="text" style="width:80%; padding:8px;" placeholder="Speak something...">
-  <button id="speakBtn" style="padding:8px 15px; margin-left:5px;">🎤 Speak</button>
-
-  <script>
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = new SpeechRecognition();
-  recognition.lang = "en-IN";
-  recognition.interimResults = false;
-  recognition.continuous = false;
-
-  const speakBtn = document.getElementById("speakBtn");
-  const inputBox = document.getElementById("speechInput");
-
-  recognition.onresult = function (e) {
-    const text = e.results[0][0].transcript;
-    inputBox.value = text;
-
-    // ✅ Send recognized text back to Koha OPAC parent window
-    if (window.opener) {
-      window.opener.postMessage(text, "http://61.2.213.253:10230"); // 👈 Use your Koha HTTP URL
-    } else {
-      alert("No parent window found!");
+  <title>🎙️ Voice Recognition</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #fff7cc, #ffe680);
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      flex-direction: column;
+      text-align: center;
     }
 
-    setTimeout(() => window.close(), 1000);
-  };
+    h2 {
+      color: #333;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
 
-  speakBtn.onclick = function () {
-    recognition.start();
-  };
+    #speechInput {
+      width: 70%;
+      padding: 15px 20px;
+      font-size: 18px;
+      border: 2px solid #ffcc00;
+      border-radius: 12px;
+      outline: none;
+      box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+      transition: 0.3s;
+      text-align: center;
+      background: #fff;
+    }
+
+    .wave-container {
+      display: flex;
+      justify-content: center;
+      align-items: end;
+      height: 80px;
+      margin-top: 40px;
+    }
+
+    .bar {
+      width: 6px;
+      height: 10px;
+      background: #ffcc00;
+      margin: 0 3px;
+      border-radius: 10px;
+      animation: bounce 1s infinite ease-in-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { height: 15px; opacity: 0.3; }
+      50% { height: 60px; opacity: 1; }
+    }
+
+    .bar:nth-child(1) { animation-delay: 0s; }
+    .bar:nth-child(2) { animation-delay: 0.1s; }
+    .bar:nth-child(3) { animation-delay: 0.2s; }
+    .bar:nth-child(4) { animation-delay: 0.3s; }
+    .bar:nth-child(5) { animation-delay: 0.4s; }
+    .bar:nth-child(6) { animation-delay: 0.5s; }
+    .bar:nth-child(7) { animation-delay: 0.6s; }
+    .bar:nth-child(8) { animation-delay: 0.7s; }
+  </style>
+</head>
+<body>
+  <h2 id="statusText">🎧 Listening... Please speak</h2>
+
+  <input id="speechInput" type="text" placeholder="Say something..." readonly>
+
+  <div class="wave-container" id="wave">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+
+  <script>
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-IN";
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    const inputBox = document.getElementById("speechInput");
+    const statusText = document.getElementById("statusText");
+
+    recognition.onstart = function() {
+      statusText.textContent = "🎧 Listening... Please speak now";
+    };
+
+    recognition.onresult = function(event) {
+      const text = event.results[0][0].transcript;
+      inputBox.value = text;
+      statusText.textContent = "✅ Recognized: " + text;
+
+      // ✅ Send recognized text back to Koha OPAC parent window
+      if (window.opener) {
+        window.opener.postMessage(text, "http://61.2.213.253:10230"); // 👈 your Koha site URL
+      }
+
+      // 🕐 Close only AFTER recognition completes
+      setTimeout(() => window.close(), 1500);
+    };
+
+    recognition.onerror = function(event) {
+      statusText.textContent = "❌ Error: " + event.error;
+      // Do not close immediately — let user see the error
+    };
+
+    recognition.onend = function() {
+      // If user didn’t say anything, show message but don’t close too fast
+      if (!inputBox.value) {
+        statusText.textContent = "⚠️ No speech detected. Please try again.";
+      }
+    };
+
+    // 🚀 Auto-start recognition on page load
+    window.onload = function() {
+      recognition.start();
+    };
   </script>
 </body>
 </html>
