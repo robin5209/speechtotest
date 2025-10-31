@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<body style="text-align:center; font-family:sans-serif; padding:20px;">
+  <h3>🎙️ Speak to Search</h3>
+  <input id="speechInput" type="text" style="width:80%; padding:8px;" placeholder="Speak something...">
+  <button id="speakBtn" style="padding:8px 15px; margin-left:5px;">🎤 Speak</button>
+
+  <script>
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-IN";
+  recognition.onresult = function(e) {
+    document.getElementById("speechInput").value = e.results[0][0].transcript;
+  };
+  document.getElementById("speakBtn").onclick = function() {
+    recognition.start();
+  };
+  </script>
+</body>
+</html>
