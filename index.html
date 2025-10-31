@@ -21,7 +21,7 @@ recognition.onresult = function (e) {
 
   // ✅ Send recognized text back to Koha OPAC parent window
   if (window.opener) {
-    window.opener.postMessage(text, "http://61.2.213.253:1233"); // your Koha site base URL
+    window.opener.postMessage(text, "http://61.2.213.253:10230"); // your Koha site base URL
   } else {
     alert("No parent window found!");
   }
@@ -37,4 +37,5 @@ speakBtn.onclick = function () {
 
 </body>
 </html>
+
 
